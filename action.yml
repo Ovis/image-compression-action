@@ -81,25 +81,3 @@ runs:
         echo "Compressed files: ${COMPRESSED_IMAGES[*]}"
         COMPRESSED_LIST=$(printf "%s\n" "${COMPRESSED_IMAGES[@]}" | base64 -w 0)
         echo "compressed_images_base64=$COMPRESSED_LIST" >> $GITHUB_ENV
-
-    # 圧縮画像が存在すればコミット & プッシュ
-    - name: Commit and push if images compressed
-      if: env.compressed_images_base64 != 'Cg=='
-      shell: bash
-      run: |
-        DECODED_COMPRESSED=$(echo "${{ env.compressed_images_base64 }}" | base64 --decode)
-        echo "Compressed images:"
-        echo "$DECODED_COMPRESSED"
-        echo "Committing compressed images..."
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git fetch origin ${{ github.head_ref }} --depth=1
-        git checkout ${{ github.head_ref }}
-        git merge origin/${{ github.head_ref }} --no-edit
-        git add .
-        git commit -m "Compress images"
-        git push origin HEAD:${{ github.head_ref }} || (
-          echo "Push failed. Attempting to pull and rebase..."
-          git pull --rebase origin ${{ github.head_ref }}
-          git push origin HEAD:${{ github.head_ref }}
-        )
