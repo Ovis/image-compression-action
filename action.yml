@@ -53,8 +53,9 @@ runs:
       run: |
         echo "Starting image compression..."
         DECODED_FILES=$(echo "${{ env.changed_files_base64 }}" | base64 --decode)
-        declare -a COMPRESSED_IMAGES=()
         THRESHOLD=${{ inputs.compression_threshold }}
+        ANY_COMPRESSED=false
+
         while IFS= read -r file; do
           echo "Target file for processing: $file"
           if [[ "$file" == *.jpg || "$file" == *.jpeg || "$file" == *.png ]]; then
@@ -70,7 +71,7 @@ runs:
             echo "Compressed size: $COMPRESSED_SIZE bytes"
             if (( (ORIGINAL_SIZE - COMPRESSED_SIZE) * 100 / ORIGINAL_SIZE >= THRESHOLD )); then
               echo "$file compressed by more than ${THRESHOLD}%"
-              COMPRESSED_IMAGES+=("$file")
+              ANY_COMPRESSED=true
             else
               echo "$file was not compressed by ${THRESHOLD}% or more."
             fi
@@ -78,6 +79,5 @@ runs:
             echo "Skipping non-image file: $file"
           fi
         done <<< "$DECODED_FILES"
-        echo "Compressed files: ${COMPRESSED_IMAGES[*]}"
-        COMPRESSED_LIST=$(printf "%s\n" "${COMPRESSED_IMAGES[@]}" | base64 -w 0)
-        echo "compressed_images_base64=$COMPRESSED_LIST" >> $GITHUB_ENV
+
+        echo "any_image_compressed=$ANY_COMPRESSED" >> $GITHUB_ENV
