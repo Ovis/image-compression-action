@@ -4,6 +4,7 @@ author: 'Ovis'
 branding:
   icon: 'image'
   color: 'blue'
+
 inputs:
   max_quality:
     description: 'Maximum quality for jpegoptim (1-100)'
@@ -13,6 +14,11 @@ inputs:
     description: 'Compression threshold in percentage (default: 30%)'
     required: false
     default: '30'
+
+outputs:
+  any_image_compressed:
+    description: 'Indicates whether any image was compressed beyond the defined threshold'
+    value: ${{ steps.compress_images.outputs.any_image_compressed }}
 
 runs:
   using: "composite"
@@ -80,4 +86,4 @@ runs:
           fi
         done <<< "$DECODED_FILES"
 
-        echo "any_image_compressed=$ANY_COMPRESSED" >> $GITHUB_ENV
+        echo "any_image_compressed=$ANY_COMPRESSED" >> $GITHUB_OUTPUT
