@@ -1,0 +1,30 @@
+name: 'Image Compression Action'
+description: 'Compresses only images modified in a PullRequest that meet the specified minimum reduction rate.'
+author: 'Ovis'
+branding:
+  icon: 'image'
+  color: 'blue'
+
+inputs:
+  jpeg_max_quality:
+    description: 'Maximum quality for jpegoptim (1-100)'
+    required: false
+    default: '80'
+  jpeg_compression_threshold:
+    description: 'Minimum compression rate (%) for JPEG images (default: 30)'
+    required: false
+    default: '30'
+  png_compression_threshold:
+    description: 'Minimum compression rate (%) for PNG images (default: 30)'
+    required: false
+    default: '30'
+
+outputs:
+  any_image_compressed:
+    description: 'Indicates whether any image was compressed beyond the defined threshold'
+    value: ${{ steps.compress_images.outputs.any_image_compressed }}
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args: []
